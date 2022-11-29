@@ -19,7 +19,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 async function run() {
    try {
-      const tempCollection = client.db("phone-garage").collection("temp");
+      const productsCollection = client.db("phone-garage").collection("products");
       /* app.get("/test", async (req, res) => {
          const query = {};
          const result = await tempCollection.find(query).toArray();
@@ -30,6 +30,12 @@ async function run() {
          const result = await tempCollection.deleteMany(query);
          res.send(result);
       }); */
+      app.get("/category/:name", async (req, res) => {
+         const categoryName = req.params.name;
+         const query = { category: categoryName };
+         const products = await productsCollection.find(query).toArray();
+         res.send(products);
+      });
    } finally {
    }
 }
