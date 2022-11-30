@@ -20,22 +20,49 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
    try {
       const productsCollection = client.db("phone-garage").collection("products");
-      /* app.get("/test", async (req, res) => {
-         const query = {};
-         const result = await tempCollection.find(query).toArray();
-         res.send(result);
-      });
-      app.get("/delete", async (req, res) => {
-         const query = {};
-         const result = await tempCollection.deleteMany(query);
-         res.send(result);
-      }); */
       app.get("/category/:name", async (req, res) => {
          const categoryName = req.params.name;
          const query = { category: categoryName };
          const products = await productsCollection.find(query).toArray();
          res.send(products);
       });
+      app.get("/featured", async (req, res) => {
+         const query = {};
+         const filter = { dateInMili: -1 };
+         const products = await productsCollection.find(query).sort(filter).limit(10).toArray();
+         res.send(products);
+      });
+      app.get("/category", async (req, res) => {
+         const query = {};
+         const categories = await productsCollection.find(query).project({ category: 1, image: 1 }).toArray();
+         const categoryName = [];
+         categories.forEach((category) => {
+            categoryName.push(category.category);
+         });
+         const allCategory = categoryName.filter((item, pos, self) => {
+            return self.indexOf(item) == pos;
+         });
+         const finalResult = [];
+         allCategory.forEach((singleCategory) =>
+            categories.find((category) => {
+               if (singleCategory === category.category) {
+                  return finalResult.push(category);
+               }
+            })
+         );
+         res.send(finalResult);
+      });
+      app.get("/advertise", async (req, res) => {
+         const query = { advertise: true };
+         const advertisedProduct = await productsCollection.find(query).project({ resale_price: 1, image: 1 }).toArray();
+         res.send(advertisedProduct);
+      });
+
+      /* app.get("/alldelete", async (req, res) => {
+         const filter = {};
+         const result = await productsCollection.deleteMany(filter);
+         res.send(result);
+      }); */
    } finally {
    }
 }
