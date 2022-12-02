@@ -138,6 +138,17 @@ async function run() {
          const user = await usersCollection.findOne(query);
          res.send({ isAdmin: user?.role === "Admin" });
       });
+      app.get("/users/seller", async (req, res) => {
+         const query = { role: "Seller" };
+         const allSeller = await usersCollection.find(query).toArray();
+         res.send(allSeller);
+      });
+      app.delete("/users/singleSeller/:id", async (req, res) => {
+         const id = req.params.id;
+         const filter = { _id: ObjectId(id) };
+         const deleted = await usersCollection.deleteOne(filter);
+         res.send(deleted);
+      });
       app.post("/users/seller", async (req, res) => {
          const email = req.body.email;
          const query = { seller_email: email };
@@ -175,11 +186,28 @@ async function run() {
          const result = await productsCollection.insertOne(product);
          res.send(result);
       });
+      app.get("/users/buyers", async (req, res) => {
+         const query = { role: "Buyer" };
+         const allBuyer = await usersCollection.find(query).toArray();
+         res.send(allBuyer);
+      });
+      app.delete("/users/buyer/:id", async (req, res) => {
+         const id = req.params.id;
+         const filter = { _id: ObjectId(id) };
+         const deleted = await usersCollection.deleteOne(filter);
+         res.send(deleted);
+      });
 
-      /* app.get("/alldelete", async (req, res) => {
+      /* app.get("/allupdate", async (req, res) => {
          const filter = {};
-         const result = await productsCollection.deleteMany(filter);
-         res.send(result);
+         const options = { upsert: true };
+         const updatedDoc = {
+            $set: {
+               verified: true,
+            },
+         };
+         const updated = await productsCollection.updateMany(filter, updatedDoc, options);
+         res.send(updated);
       }); */
    } finally {
    }
